@@ -1,0 +1,43 @@
+# The people directory — the ONE list every module uses.
+#
+#   id          short, stable, never reused (used everywhere in workspace.yaml)
+#   name        as it appears in Teams
+#   email       work email (lets @mentions work before the person has replied once)
+#   aliases     other spellings people or Teams use ("Doe, Jane", a nickname)
+#   teams       standup team keys this person belongs to
+#   timesheet   true if they must confirm a weekly timesheet
+#   neverTag    true to never @mention them on routine cards
+#   departedOn  LAST working day. Don't delete leavers — set this; they drop out
+#               of every module the next day and their history stays.
+#
+# Replace these sample people with your own.
+people:
+  - id: alex
+    name: Alex Morgan
+    email: alex.morgan@example.com
+    teams: [platform]
+    timesheet: true
+
+  - id: priya
+    name: Priya Raman
+    email: priya.raman@example.com
+    aliases: ["Raman, Priya"]
+    teams: [platform]
+    timesheet: true
+
+  - id: sam
+    name: Sam Okafor
+    email: sam.okafor@example.com
+    teams: [platform]
+    timesheet: true
+
+  - id: jordan
+    name: Jordan Lee
+    email: jordan.lee@example.com
+    # a lead: not in a standup team, but tagged on summaries and escalations
+
+  # - id: casey
+  #   name: Casey Former
+  #   email: casey@example.com
+  #   teams: [platform]
+  #   departedOn: 2026-10-31

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  TeamPilot on macOS. Save as ~/Library/LaunchAgents/com.teampilot.__WS__.plist, then:
+    launchctl load -w ~/Library/LaunchAgents/com.teampilot.__WS__.plist
+  Note: a sleeping Mac runs nothing. Scheduled slots missed while asleep are
+  caught up on wake only within workspace.catchUpMinutes. Use a server for
+  anything people depend on.
+-->
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>Label</key><string>com.teampilot.__WS__</string>
+  <key>ProgramArguments</key>
+  <array>
+    <string>__NODE__</string>
+    <string>__BIN__</string>
+    <string>start</string>
+    <string>__WS__</string>
+  </array>
+  <key>EnvironmentVariables</key>
+  <dict><key>TEAMPILOT_HOME</key><string>__HOME__</string></dict>
+  <key>RunAtLoad</key><true/>
+  <key>KeepAlive</key><dict><key>SuccessfulExit</key><false/></dict>
+  <key>StandardOutPath</key><string>__HOME__/workspaces/__WS__/logs/launchd.out.log</string>
+  <key>StandardErrorPath</key><string>__HOME__/workspaces/__WS__/logs/launchd.err.log</string>
+</dict>
+</plist>

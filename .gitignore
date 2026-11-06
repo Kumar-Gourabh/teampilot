@@ -1,0 +1,10 @@
+node_modules/
+dist/
+# Workspaces hold customer config, secrets and state — they never belong in this repo.
+workspaces/
+.env
+*.graph-cache*.json
+secrets/
+state/
+logs/
+.DS_Store

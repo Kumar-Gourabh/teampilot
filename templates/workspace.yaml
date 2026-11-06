@@ -1,0 +1,132 @@
+# TeamPilot workspace: __DISPLAY_NAME__
+#
+# One workspace = one company or project. Everything it needs lives in this
+# folder: this file, people.yaml, holidays.yaml, .env (secrets), state/ and logs/.
+# Check it with:   teampilot doctor __WORKSPACE__ --online
+
+workspace:
+  name: "__DISPLAY_NAME__"
+  timezone: __TIMEZONE__             # IANA name, e.g. Europe/London, America/New_York, Asia/Singapore
+  workdays: [monday, tuesday, wednesday, thursday, friday]
+  signoff: "TeamPilot"               # footer on every card; set to "" for none
+  # If the host is only up part of the day (a VM stopped at night), say so:
+  # jobs scheduled outside this window are flagged by doctor and the supervisor.
+  # uptime: { from: "09:00", to: "20:00" }
+  catchUpMinutes: 180                # after a late start, run slots missed in the last N minutes
+
+# Microsoft 365 sign-in, used to READ replies, chats and reactions.
+# Run once:  teampilot login __WORKSPACE__   (use a dedicated bot account if you can)
+identity:
+  graph:
+    tenant: common                   # or your tenant id
+    # clientId: ""                   # your own Entra app registration (recommended for production)
+    # account: bot@yourcompany.com   # pin the identity if the cache holds several
+    # fallback:                      # optional second, READ-ONLY identity for chats the bot can't join
+    #   account: you@yourcompany.com
+
+# The AI used for summaries and leave reading. Every module still works without
+# one (plain fallbacks); leave reading needs it.
+llm:
+  provider: anthropic                # anthropic | openai-compatible | none
+  model: claude-opus-5-5
+  apiKey: ANTHROPIC_API_KEY          # NAME of the secret in .env
+  effort: medium
+  # fallbacks:
+  #   - provider: openai-compatible
+  #     baseUrl: https://openrouter.ai/api/v1
+  #     model: <model id>
+  #     apiKey: OPENROUTER_API_KEY
+
+# Where cards go. `webhook` is the NAME of a secret in .env holding the
+# Teams Workflows ("Post card in a chat or channel") URL. Give teamId+channelId
+# or chatId when replies must be READ there (find them: teampilot discover __WORKSPACE__).
+# kind: teams-workflow (default, supports @mentions) | teams-connector | slack | console
+venues:
+  standup-channel:
+    webhook: WEBHOOK_STANDUP
+    teamId: ""
+    channelId: ""
+  timesheet-chat:
+    webhook: WEBHOOK_TIMESHEET
+    chatId: ""
+  leave-channel:
+    webhook: WEBHOOK_LEAVE
+    teamId: ""
+    channelId: ""
+  leadership-channel:
+    webhook: WEBHOOK_LEADERSHIP
+  ops-alerts:                        # a PRIVATE chat for the operator — supervisor alerts go here
+    webhook: WEBHOOK_ALERTS
+  # Try everything without posting anywhere:
+  terminal:
+    kind: console
+
+modules:
+  standup:
+    enabled: __STANDUP__
+    teams:
+      - key: platform
+        name: Platform
+        venue: standup-channel       # check-in and summary are posted here
+        intake: thread               # people reply under the check-in card (or "venue": any message that day)
+        members: [alex, priya, sam]  # people ids; omit to use everyone with `teams: [platform]` in people.yaml
+        leads: [jordan]
+        cc: [jordan]                 # tagged on the summary
+        schedule:
+          checkin: "0 10 * * 1-5"
+          nudge: "0 15 * * 1-5"      # optional; silent when everyone has posted
+          summary: "30 17 * * 1-5"
+        escalate: { to: [jordan], afterDays: 3 }   # flag members quiet for N working days
+        # questions: ["✅ Done", "🔜 Next", "🚧 Blockers"]
+        # context: "Owns the billing service and the public API."
+
+  timesheet:
+    enabled: __TIMESHEET__
+    name: Timesheets
+    venue: timesheet-chat            # reminder goes here; confirmations are read here
+    finalVenue: ops-alerts           # end-of-period pending list
+    periodEnds: friday
+    instructions: |
+      Please submit this week's timesheet in your time-tracking system.
+    link: ""                         # e.g. the time-tracking system URL
+    deadline: "Friday 5 PM"
+    holidayNote: "book the holiday as Time Off"
+    coordinators: [jordan]           # their "done for @name" counts; they get the final list
+    # participants: [alex, priya]    # default: everyone with `timesheet: true` in people.yaml
+    schedule:
+      reminder: "0 10 * * 4"
+      poll: "*/15 10-16 * * 4,5"
+      nudge: ["0 15 * * 4", "0 12 * * 5"]
+      final: "0 17 * * 5"
+
+  leave:
+    enabled: __LEAVE__
+    sources: [leave-channel]         # venues where people announce leave
+    codes: { AL: Annual leave, SL: Sick leave, UL: Unpaid leave }
+    defaultCode: AL
+    clarifyVenue: leave-channel      # where "we've noted X as Y — reply if wrong" goes
+    # digestVenue: standup-channel   # optional morning "Out today" card
+    lookbackDays: 7
+    schedule:
+      ingest: "0 9,12,17 * * 1-5"
+      # digest: "45 9 * * 1-5"
+
+  weeklyReport:
+    enabled: __WEEKLY__
+    venue: leadership-channel
+    title: Weekly team summary
+    schedule: "0 17 * * 5"
+    # teams: [platform]              # default: every standup team
+    cc: [jordan]
+
+  supervisor:
+    enabled: __SUPERVISOR__
+    alertVenue: ops-alerts
+    owners: [jordan]                 # tagged when something is high severity
+    graceMinutes: 20
+    verifyDelivery: true             # read venues back to confirm cards really landed
+    judge: false                     # LLM double-checks each summary against the updates
+    quietDays: 3
+    schedule:
+      passes: ["45 10 * * 1-5", "30 13 * * 1-5", "45 17 * * 1-5"]
+      endOfDay: "30 18 * * 1-5"

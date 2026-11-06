@@ -1,0 +1,23 @@
+# TeamPilot — one unit per workspace:  systemctl enable --now teampilot@<workspace>
+[Unit]
+Description=TeamPilot workspace %i
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=__USER__
+Environment=TEAMPILOT_HOME=__HOME__
+Environment=NODE_OPTIONS=--dns-result-order=ipv4first
+ExecStart=__NODE__ __BIN__ start %i
+Restart=on-failure
+RestartSec=30
+# A config error makes the process exit at once; don't spin on it forever.
+StartLimitIntervalSec=600
+StartLimitBurst=5
+NoNewPrivileges=true
+ProtectSystem=full
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target

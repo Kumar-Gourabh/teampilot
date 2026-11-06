@@ -1,0 +1,23 @@
+# One service per workspace. Workspaces (config, secrets, state) live in ./data.
+#
+#   docker compose run --rm init           # first time: create ./data/workspaces/acme
+#   docker compose run --rm cli login acme # sign in (device code)
+#   docker compose run --rm cli doctor acme --online
+#   docker compose up -d acme
+services:
+  acme:
+    build: { context: ../.., dockerfile: deploy/docker/Dockerfile }
+    command: ["start", "acme"]
+    volumes: ["./data:/data"]
+    restart: unless-stopped
+  cli:
+    build: { context: ../.., dockerfile: deploy/docker/Dockerfile }
+    volumes: ["./data:/data"]
+    profiles: ["tools"]
+  init:
+    build: { context: ../.., dockerfile: deploy/docker/Dockerfile }
+    command: ["init", "acme"]
+    stdin_open: true
+    tty: true
+    volumes: ["./data:/data"]
+    profiles: ["tools"]

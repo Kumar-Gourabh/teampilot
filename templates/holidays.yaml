@@ -1,0 +1,5 @@
+# Non-working days. Jobs skip them, standup streaks don't count them, and the
+# timesheet reminder mentions any holiday that falls in the period.
+holidays:
+  # - { date: 2026-12-25, name: Christmas Day }
+  # - { date: 2027-01-01, name: New Year's Day }

@@ -88,12 +88,34 @@ flowchart LR
 
 ## Quick start
 
-**Requirements:** Node.js 20+ on macOS or Linux (Windows via WSL or Docker).
+**1. Node.js 20+** on macOS or Linux (Windows via WSL or Docker):
+
+```bash
+brew install node                                          # macOS
+curl -fsSL https://deb.nodesource.com/setup_22.x | sudo -E bash - && sudo apt-get install -y nodejs   # Ubuntu / Debian
+```
+
+**2. Install TeamPilot.** One command, no GitHub account needed:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/Kumar-Gourabh/teampilot/main/install.sh | TEAMPILOT_TARBALL=https://github.com/Kumar-Gourabh/teampilot/releases/download/v0.1.0/teampilot-0.1.0.tgz bash
+```
+
+It installs to **~/.teampilot/app** and adds a **teampilot** command in **~/.local/bin**
+(if that folder isn't on your PATH yet, run the line it prints). It doesn't need sudo.
+Re-running it upgrades TeamPilot, and your workspaces are never touched.
+
+<details>
+<summary>Or install from a clone of the repo</summary>
 
 ```bash
 git clone https://github.com/Kumar-Gourabh/teampilot.git
 cd teampilot && ./install.sh
 ```
+
+</details>
+
+**3. Try it, then set up a workspace:**
 
 ```bash
 teampilot demo                     # every card on sample data: no accounts, nothing posted
@@ -168,6 +190,7 @@ Upgrading means re-running `install.sh`. It never touches workspaces.
 | [Microsoft 365 setup](docs/SETUP-MICROSOFT-365.md) | app registration, permissions, webhooks |
 | [Configuration](docs/CONFIGURATION.md) | every setting, by module |
 | [Operations](docs/OPERATIONS.md) | the daily rhythm, and what to do when something breaks |
+| [Developing and releasing](docs/RELEASING.md) | work on the code, publish a version, upgrade an install |
 | [Roadmap](docs/ROADMAP.md) | what's next |
 | [Security](SECURITY.md) | access, secrets and what reaches the AI |
 
